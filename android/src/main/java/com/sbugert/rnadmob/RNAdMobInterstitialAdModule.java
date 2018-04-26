@@ -60,7 +60,10 @@ public class RNAdMobInterstitialAdModule extends ReactContextBaseJavaModule {
             }
             event.putString("error", errorString);
             sendEvent("interstitialDidFailToLoad", event);
-            requestAdCallback.invoke(errorString);
+            if (requestAdCallback != null) {
+              requestAdCallback.invoke(errorString);
+              requestAdCallback = null;
+            }
           }
           @Override
           public void onAdLeftApplication() {
@@ -69,7 +72,10 @@ public class RNAdMobInterstitialAdModule extends ReactContextBaseJavaModule {
           @Override
           public void onAdLoaded() {
             sendEvent("interstitialDidLoad", null);
-            requestAdCallback.invoke();
+            if (requestAdCallback != null) {
+              requestAdCallback.invoke();
+              requestAdCallback = null;
+            }
           }
           @Override
           public void onAdOpened() {

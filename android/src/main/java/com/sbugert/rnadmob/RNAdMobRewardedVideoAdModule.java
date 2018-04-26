@@ -46,7 +46,10 @@ public class RNAdMobRewardedVideoAdModule extends ReactContextBaseJavaModule imp
     @Override
     public void onRewardedVideoAdLoaded() {
         sendEvent("rewardedVideoDidLoad", null);
-        requestAdCallback.invoke();
+        if (requestAdCallback != null) {
+            requestAdCallback.invoke();
+            requestAdCallback = null;
+        }
     }
 
     @Override
@@ -91,7 +94,10 @@ public class RNAdMobRewardedVideoAdModule extends ReactContextBaseJavaModule imp
 
         event.putString("error", errorString);
         sendEvent("rewardedVideoDidFailToLoad", event);
-        requestAdCallback.invoke(errorString);
+        if (requestAdCallback != null) {
+            requestAdCallback.invoke(errorString);
+            requestAdCallback = null;
+        }
     }
 
     private void sendEvent(String eventName, @Nullable WritableMap params) {
@@ -117,7 +123,7 @@ public class RNAdMobRewardedVideoAdModule extends ReactContextBaseJavaModule imp
 
                 RNAdMobRewardedVideoAdModule.this.mRewardedVideoAd.setRewardedVideoAdListener(RNAdMobRewardedVideoAdModule.this);
 
-                if (mRewardedVideoAd.isLoaded()) {
+                if (mRewardedVideoAd != null && mRewardedVideoAd.isLoaded()) {
                     callback.invoke("Ad is already loaded."); // TODO: make proper error
                 } else {
                     requestAdCallback = callback;
@@ -144,7 +150,7 @@ public class RNAdMobRewardedVideoAdModule extends ReactContextBaseJavaModule imp
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run () {
-                if (mRewardedVideoAd.isLoaded()) {
+                if (mRewardedVideoAd != null && mRewardedVideoAd.isLoaded()) {
                     showAdCallback = callback;
                     mRewardedVideoAd.show();
                 } else {
@@ -159,7 +165,12 @@ public class RNAdMobRewardedVideoAdModule extends ReactContextBaseJavaModule imp
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run () {
-                callback.invoke(mRewardedVideoAd.isLoaded());
+                if (mRewardedVideoAd != null) {
+                    callback.invoke(mRewardedVideoAd.isLoaded());
+                }
+                else {
+                    callback.invoke(false);
+                }
             }
         });
     }
